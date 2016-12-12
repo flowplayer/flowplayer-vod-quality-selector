@@ -1,0 +1,50 @@
+
+<!doctype html>
+
+<head>
+
+   <!-- player skin -->
+   <link rel="stylesheet" type="text/css" href="//cdn.dev94.flowplayer.us/dev/skin/skin.css">
+
+   <!-- site specific styling -->
+   <style>
+   body { font-family: avenir, sans-serif; max-width: 1000px; margin: 0 auto; padding: .6em;}
+   .flowplayer { width: 100%; }
+
+   </style>
+
+   <!-- include flowplayer -->
+   <script src="//cdn.dev94.flowplayer.us/dev/flowplayer.min.js"></script>
+   <script>
+   // The old drive qsel plugin will set this default and load the new vod qsel plugin
+   flowplayer.defaults.vodQualities = {
+     drive: true
+   };
+   </script>
+   <script src="/flowplayer.vod-quality-selector.js"></script>
+
+</head>
+
+<body>
+
+  <div id="player"></div>
+
+  <script>
+  flowplayer('#player', {
+    ratio: 0.4167,
+    clip: {
+      qualities: ['160p', '260p', '530p', '800p'],
+      defaultQuality: '260p',
+      sources: [{
+        type: 'application/x-mpegurl',
+        src: '//cdn.flowplayer.org/202777/84049-bauhaus.m3u8'
+      }, {
+        type: 'video/mp4',
+        src: '//cdn.flowplayer.org/202777/84049-bauhaus.mp4'
+      }]
+    }
+  });
+  </script>
+
+</body>
+

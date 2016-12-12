@@ -1,7 +1,24 @@
 (function() {
   var extension = function(api) {
     api.on('load', function(_ev, _api, video) {
-      var vodQualities = video.vodQualities || api.conf.vodQualities;
+      var vodQualities = video.vodQualities || api.conf.vodQualities || {}
+        , c = api.conf
+        , isDrive = typeof vodQualities.drive !== 'undefined' ? vodQualities.drive : !!(c.vodQualities && c.vodQualities.drive);
+      if (isDrive) {
+        var originalQualities = video.originalQualities = video.originalQualities || video.qualities
+          , template = video.src.replace(/(-[0-9]+p)?\.(mp4|webm|m3u8)$/, '-{q}.{ext}');
+        var qlities = (vodQualities.qualities || originalQualities || []).map(function(q) {
+          if (q !== vodQualities.defaultQuality) return q;
+          return {
+            label: q,
+            src: template.replace(/-{q}/, '')
+          };
+        });
+        vodQualities = {
+          template: template,
+          qualities: qlities
+        };
+      }
       if (!vodQualities || !vodQualities.qualities || !vodQualities.qualities.length) return;
       video.hlsQualities = false;
       var vodQualitySources = {}
