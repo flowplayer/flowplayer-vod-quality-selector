@@ -5,10 +5,11 @@
         , c = api.conf
         , isDrive = typeof vodQualities.drive !== 'undefined' ? vodQualities.drive : !!(c.vodQualities && c.vodQualities.drive);
       if (isDrive) {
-        var originalQualities = video.originalQualities = video.originalQualities || video.qualities
+        var originalQualities = video.originalQualities = video.originalQualities || video.qualities || c.qualities
+          , defaultQuality = video.defaultQuality || c.defaultQuality
           , template = video.src.replace(/(-[0-9]+p)?\.(mp4|webm|m3u8)$/, '-{q}.{ext}');
         var qlities = (vodQualities.qualities || originalQualities || []).map(function(q) {
-          if (q !== vodQualities.defaultQuality) return q;
+          if (q !== defaultQuality) return q;
           return {
             label: q,
             src: template.replace(/-{q}/, '')
