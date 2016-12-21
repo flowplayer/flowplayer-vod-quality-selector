@@ -23,7 +23,7 @@
       if (!vodQualities || !vodQualities.qualities || !vodQualities.qualities.length) return;
       video.hlsQualities = false;
       var vodQualitySources = {}
-        , vodSource = video.sources.find(function(s) { return !/mpegurl/i.test(s.type); })
+        , vodSource = video.sources.filter(function(s) { return !/mpegurl/i.test(s.type); })[0]
         , vodExt = vodSource && last(vodSource.src.split('.'))
         , hasHLSSource = video.sources.some(function(s) {
           if (!/mpegurl/i.test(s.type)) return false;
@@ -54,7 +54,7 @@
       }));
       video.qualities = qualities;
       if (/mpegurl/i.test(video.type)) video.quality = -1;
-      else video.quality = Object.keys(vodQualitySources).find(function(k) { return video.src.indexOf(vodQualitySources[k].src) > -1; });
+      else video.quality = Object.keys(vodQualitySources).filter(function(k) { return video.src.indexOf(vodQualitySources[k].src) > -1; })[0];
       video.vodQualitySources = vodQualitySources;
     });
 
