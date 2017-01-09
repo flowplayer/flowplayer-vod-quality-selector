@@ -3,12 +3,13 @@
     api.on('load', function(_ev, _api, video) {
       var vodQualities = video.vodQualities || api.conf.vodQualities || {}
         , c = api.conf
-        , isDrive = typeof vodQualities.drive !== 'undefined' ? vodQualities.drive : !!(c.vodQualities && c.vodQualities.drive);
+        , isDrive = (!!video.qualities || !!c.qualities) && (!!video.defaultQuality || !!c.defaultQuality);
       if (isDrive) {
         var originalQualities = video.originalQualities = video.originalQualities || video.qualities || c.qualities
           , defaultQuality = video.defaultQuality || c.defaultQuality
           , template = video.src.replace(/(-[0-9]+p)?\.(mp4|webm|m3u8)$/, '-{q}.{ext}');
-        var qlities = (vodQualities.qualities || originalQualities || []).map(function(q) {
+        if (typeof originalQualities === 'string') originalQualities = originalQualities.split(',');
+        var qlities = ((typeof vodQualities.qualities === 'string' ? vodQualities.qualities.split(',') : vodQualities.qualities) || originalQualities || []).map(function(q) {
           if (q !== defaultQuality) return q;
           return {
             label: q,

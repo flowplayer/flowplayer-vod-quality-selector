@@ -15,12 +15,6 @@
 
    <!-- include flowplayer -->
    <script src="//cdn.dev94.flowplayer.us/dev/flowplayer.min.js"></script>
-   <script>
-   // The old drive qsel plugin will set this default and load the new vod qsel plugin
-   flowplayer.defaults.vodQualities = {
-     drive: true
-   };
-   </script>
    <script src="/flowplayer.vod-quality-selector.js"></script>
 
 </head>
@@ -33,7 +27,7 @@
   flowplayer('#player', {
     ratio: 0.4167,
     clip: {
-      qualities: ['160p', '260p', '530p', '800p'],
+      qualities: '160p,260p,530p,800p',
       defaultQuality: '260p',
       sources: [{
         type: 'application/x-mpegurl',
