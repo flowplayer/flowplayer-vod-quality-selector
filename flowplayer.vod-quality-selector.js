@@ -9,6 +9,7 @@
       });
     }
     api.on('load', function(_ev, _api, video) {
+      if (api.live) return;
       var vodQualities = video.vodQualities || api.conf.vodQualities || {}
         , c = api.conf
         , isDrive = (!!video.qualities || !!c.qualities) && (!!video.defaultQuality || !!c.defaultQuality);
