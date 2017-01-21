@@ -1,5 +1,13 @@
 (function() {
   var extension = function(api) {
+    var hlsjs = false;
+    if (api.conf.hlsjs !== false) {
+      flowplayer.engines.forEach(function (engine) {
+        if (engine.engineName === 'hlsjs' && engine.canPlay('application/x-mpegurl', api.conf)) {
+          hlsjs = true;
+        }
+      });
+    }
     api.on('load', function(_ev, _api, video) {
       var vodQualities = video.vodQualities || api.conf.vodQualities || {}
         , c = api.conf
@@ -70,8 +78,19 @@
           type: null
         });
       var time = video.time;
+      if (hlsjs && video.hlsjs !== false && time && q < 0) {
+        video.hlsjs = extend(video.hlsjs || {}, {startPosition: time});
+      }
+      console.info(video);
       api.load(video, function() {
-        api.seek(time);
+        api.finished = false;
+        if (time && !(video.hlsjs && video.hlsjs.startPosition)) {
+          api.seek(time, function () {
+            api.resume();
+          });
+        } else if (video.hlsjs) {
+          video.hlsjs.startPosition = 0;
+        }
       });
     });
   };
