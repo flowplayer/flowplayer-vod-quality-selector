@@ -1,5 +1,8 @@
 (function() {
   var extension = function(api) {
+    if (!flowplayer.support.video) {
+        return;
+    }
     var hlsjs = false;
     if (api.conf.hlsjs !== false) {
       flowplayer.engines.forEach(function (engine) {
