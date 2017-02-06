@@ -72,7 +72,7 @@
     });
 
     api.on('quality', function(_ev, _api, q) {
-      var selectedQuality = api.video.vodQualitySources[q];
+      var selectedQuality = api.video.vodQualitySources && api.video.vodQualitySources[q];
       if (!selectedQuality) return;
       var originalSources = api.video.originalSources || api.video.sources
         , video = extend({}, api.video, {
