@@ -13,8 +13,8 @@
     }
     api.on('load', function(_ev, _api, video) {
       if (api.live) return;
-      var vodQualities = video.vodQualities || api.conf.vodQualities || {}
-        , c = api.conf
+      var c = api.conf
+        , vodQualities = video.vodQualities || c.vodQualities || {}
         , isDrive = (!!video.qualities || !!c.qualities) && (!!video.defaultQuality || !!c.defaultQuality);
       if (isDrive) {
         var originalQualities = video.originalQualities = video.originalQualities || video.qualities || c.qualities
@@ -85,7 +85,6 @@
       if (hlsjs && video.hlsjs !== false && time && q < 0) {
         video.hlsjs = extend(video.hlsjs || {}, {startPosition: time});
       }
-      console.info(video);
       api.load(video, function() {
         api.finished = false;
         if (time && !(video.hlsjs && video.hlsjs.startPosition)) {
