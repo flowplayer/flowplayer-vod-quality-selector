@@ -88,6 +88,7 @@
       var selectedQuality = api.video.vodQualitySources && api.video.vodQualitySources[q];
       if (!selectedQuality) return;
       var originalSources = api.video.originalSources || api.video.sources
+        , extend = flowplayer.extend
         , video = extend({}, api.video, {
           originalSources: originalSources,
           sources: [{ type: selectedQuality.type, src: selectedQuality.src }].concat(originalSources),
@@ -115,14 +116,4 @@
   else if (typeof window.flowplayer === 'function') window.flowplayer(extension);
 
   function last(parts) { return parts[parts.length - 1]; }
-
-  function extend() {
-    var toExtend = arguments[0];
-    [].slice.call(arguments, 1).forEach(function(obj) {
-      Object.keys(obj).forEach(function(k) {
-        toExtend[k] = obj[k];
-      });
-    });
-    return toExtend;
-  }
 })();
