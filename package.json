@@ -1,0 +1,29 @@
+{
+  "name": "flowplayer-vod-quality-selector",
+  "version": "1.0.0",
+  "description": "Flowplayer vod quality selector plugin",
+  "main": "flowplayer.vod-quality-selector.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "min": "uglifyjs -m -c --comments '/Flowplayer Drive Oy/' -o dist/flowplayer.vod-quality-selector.min.js -"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flowplayer/flowplayer-vod-quality-selector"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flowplayer/flowplayer-vod-quality-selector/issues"
+  },
+  "homepage": "https://github.com/flowplayer/flowplayer-vod-quality-selector",
+  "peerDependencies": {
+    "flowplayer": "^7.0.0"
+  },
+  "devDependencies": {
+    "uglifyjs": "^2.4.10"
+  },
+  "jshintConfig": {
+    "undef": true
+  }
+}
