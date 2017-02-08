@@ -33,7 +33,7 @@
       if (isDrive) {
         var originalQualities = video.originalQualities = video.originalQualities || video.qualities || c.qualities
           , defaultQuality = video.defaultQuality || c.defaultQuality
-          , template = video.src.replace(/(-[0-9]+p)?\.(mp4|webm|m3u8)$/, '-{q}.{ext}');
+          , template = video.src.replace(/(-[0-9]+p)?\.(mp4|webm|m3u8|flv)$/, '-{q}.{ext}');
         if (typeof originalQualities === 'string') originalQualities = originalQualities.split(',');
         var qlities = ((typeof vodQualities.qualities === 'string' ? vodQualities.qualities.split(',') : vodQualities.qualities) || originalQualities || []).map(function(q) {
           if (q !== defaultQuality) return q;
@@ -59,15 +59,22 @@
             src: s.src
           };
           return true;
+        })
+        , flashSource;
+        video.sources.forEach(function(s) {
+          if (s.type.toLowerCase() === 'video/flash') flashSource = s.src;
         });
-      var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : [];
+      if (!support.video && !flashSource ||
+        flashSource && (!c.rtmp && !video.rtmp || /^(https?:)?\/\//.test(flashSource))) return;
+      var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : []
+        , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || '';
       qualities = qualities.concat(vodQualities.qualities.map(function(q, i) {
         if (typeof q === 'string') {
           vodQualitySources[i] = {
             type: vodSource && vodSource.type,
-            src: isDrive && vodSource && vodSource.type && /\/flash$/i.test(vodSource.type)
-              ? vodQualities.template.replace(/^(https?:)?\/\/[^/]+\//, 'mp4:').replace('{q}', q).replace('{ext}', vodExt)
-              : vodQualities.template.replace('{q}', q).replace('{ext}', vodExt)
+            src: vodSource && vodSource.type && vodSource.type.toLowerCase() !== 'video/flash'
+              ? vodQualities.template.replace('{q}', q).replace('{ext}', vodExt)
+              : vodQualities.template.replace(/^(https?:)?\/\/[^/]+\//, fPrefix).replace('{q}', q).replace('{ext}', vodExt)
           };
           return {
             value: i, label: q
