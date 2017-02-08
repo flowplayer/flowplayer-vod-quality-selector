@@ -13,7 +13,8 @@
 */
 (function() {
   var extension = function(api) {
-    if (!flowplayer.support.video) {
+    var support = flowplayer.support;
+    if (!support.inlineVideo || !support.video) {
         return;
     }
     var hlsjs = false;
