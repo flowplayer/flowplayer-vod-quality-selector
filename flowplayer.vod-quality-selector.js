@@ -14,7 +14,7 @@
 (function() {
   var extension = function(api) {
     var support = flowplayer.support;
-    if (!support.inlineVideo || !support.video) {
+    if (!support.inlineVideo) {
         return;
     }
     var hlsjs = false;
@@ -26,8 +26,8 @@
       });
     }
     api.on('load', function(_ev, _api, video) {
-      if (api.live) return;
-      var c = api.conf
+      if (_api.live) return;
+      var c = _api.conf
         , vodQualities = video.vodQualities || c.vodQualities || {}
         , isDrive = (!!video.qualities || !!c.qualities) && (!!video.defaultQuality || !!c.defaultQuality);
       if (isDrive) {
@@ -65,7 +65,9 @@
         if (typeof q === 'string') {
           vodQualitySources[i] = {
             type: vodSource && vodSource.type,
-            src: vodQualities.template.replace('{q}', q).replace('{ext}', vodExt)
+            src: isDrive && vodSource && vodSource.type && /\/flash$/i.test(vodSource.type)
+              ? vodQualities.template.replace(/^(https?:)?\/\/[^/]+\//, 'mp4:').replace('{q}', q).replace('{ext}', vodExt)
+              : vodQualities.template.replace('{q}', q).replace('{ext}', vodExt)
           };
           return {
             value: i, label: q
