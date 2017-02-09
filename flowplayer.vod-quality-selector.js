@@ -25,9 +25,9 @@
         }
       });
     }
-    api.on('load', function(_ev, _api, video) {
-      if (_api.live) return;
-      var c = _api.conf
+    api.on('load', function(_ev, api, video) {
+      if (api.live) return;
+      var c = api.conf
         , vodQualities = video.vodQualities || c.vodQualities || {}
         , isDrive = (!!video.qualities || !!c.qualities) && (!!video.defaultQuality || !!c.defaultQuality);
       if (isDrive) {
@@ -97,7 +97,7 @@
       video.vodQualitySources = vodQualitySources;
     });
 
-    api.on('quality', function(_ev, _api, q) {
+    api.on('quality', function(_ev, api, q) {
       var selectedQuality = api.video.vodQualitySources && api.video.vodQualitySources[q];
       if (!selectedQuality) return;
       var originalSources = api.video.originalSources || api.video.sources
@@ -112,7 +112,7 @@
       if (hlsjs && video.hlsjs !== false && time && q < 0) {
         video.hlsjs = extend(video.hlsjs || {}, {startPosition: time});
       }
-      api.load(video, function() {
+      api.load(video, function(e, api) {
         api.finished = false;
         if (time && !(video.hlsjs && video.hlsjs.startPosition)) {
           api.seek(time, function () {
