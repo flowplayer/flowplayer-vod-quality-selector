@@ -67,14 +67,15 @@
       if (!support.video && !flashSource ||
         flashSource && (!c.rtmp && !video.rtmp || /^(https?:)?\/\//.test(flashSource))) return;
       var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : []
-        , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || '';
+        , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || ''
+        , fSuffix = flashSource && /\.(mp4|flv|f4v)$/i.test(flashSource) && flashSource.slice(flashSource.length - 3) || '';
       qualities = qualities.concat(vodQualities.qualities.map(function(q, i) {
         if (typeof q === 'string') {
           vodQualitySources[i] = {
             type: vodSource && vodSource.type,
             src: vodSource && vodSource.type && vodSource.type.toLowerCase() !== 'video/flash'
               ? vodQualities.template.replace('{q}', q).replace('{ext}', vodExt)
-              : vodQualities.template.replace(/^(https?:)?\/\/[^/]+\//, fPrefix).replace('{q}', q).replace('{ext}', vodExt)
+              : vodQualities.template.replace(/^(https?:)?\/\/[^/]+\//, fPrefix).replace('{q}', q).replace('{ext}', fSuffix)
           };
           return {
             value: i, label: q
@@ -82,7 +83,9 @@
         }
         vodQualitySources[i] = {
           type: q.type || vodSource && vodSource.type,
-          src: q.src.replace('{ext}', vodExt)
+          src: q.type || vodSource && vodSource.type && vodSource.type.toLowerCase() !== 'video/flash'
+            ? q.src.replace('{ext}', vodExt)
+            : q.src.replace(/^(https?:)?\/\/[^/]+\//, fPrefix).replace('{ext}', fSuffix)
         };
         return {
           value: i, label: q.label
