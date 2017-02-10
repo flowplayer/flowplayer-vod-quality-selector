@@ -17,6 +17,8 @@
       var support = flowplayer.support;
       if (!support.inlineVideo) return;
       var qPat = /(-[0-9]+p)?(\.(mp4|webm|m3u8|ogv|flv|f4v)?)$/i
+        , extPat = /(\.(mp4|webm|m3u8|ogv|flv|f4v))?$/i
+        , extTemplatePat = /\.?{ext}/
         , hostPat = /^(https?:)?\/\/[^/]+\//
         , hlsjs = false;
       if (api.conf.hlsjs !== false) {
@@ -53,7 +55,7 @@
         video.hlsQualities = false;
         var vodQualitySources = {}
           , vodSource = video.sources.filter(function(s) { return !/mpegurl/i.test(s.type) && isPlayable(s.type, c); })[0]
-          , vodExt = vodSource && last(vodSource.src)
+          , vodExt = vodSource && extPat.exec(vodSource.src)[0]
           , hasHLSSource = video.sources.some(function(s) {
             if (!/mpegurl/i.test(s.type)) return false;
             vodQualitySources[-1] = {
@@ -63,21 +65,21 @@
             return true;
           })
           , flashSource;
+        console.info(vodSource.src, extPat.exec(vodSource.src));
         video.sources.forEach(function(s) {
           if (s.type === 'video/flash') flashSource = s.src;
         });
         if (!support.video && !flashSource ||
           flashSource && (!c.rtmp && !video.rtmp || /^(https?:)?\/\//.test(flashSource))) return;
         var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : []
-          , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || ''
-          , fSuffix = flashSource && last(flashSource)
+          , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || '';
         qualities = qualities.concat(vodQualities.qualities.map(function(q, i) {
           if (typeof q === 'string') {
             vodQualitySources[i] = {
               type: vodSource && vodSource.type,
               src: vodSource && vodSource.type !== 'video/flash'
-                ? vodQualities.template.replace('{q}', q).replace('{ext}', vodExt)
-                : vodQualities.template.replace(hostPat, fPrefix).replace('{q}', q).replace((fSuffix.length ? '' : '.') + '{ext}', fSuffix)
+                ? vodQualities.template.replace('{q}', q).replace(extTemplatePat, vodExt)
+                : vodQualities.template.replace(hostPat, fPrefix).replace('{q}', q).replace(extTemplatePat, vodExt)
             };
             return {
               value: i, label: q
@@ -86,8 +88,8 @@
           vodQualitySources[i] = {
             type: q.type || vodSource && vodSource.type,
             src: q.type && q.type !== 'video/flash' || vodSource && vodSource.type !== 'video/flash'
-              ? q.src.replace('{ext}', vodExt)
-              : q.src.replace(hostPat, fPrefix).replace((fSuffix.length ? '' : '.') + '{ext}', fSuffix)
+              ? q.src.replace(extTemplatePat, vodExt)
+              : q.src.replace(hostPat, fPrefix).replace(extTemplatePat, vodExt)
           };
           return {
             value: i, label: q.label
@@ -131,13 +133,8 @@
       return !!flowplayer.engines.filter(function(engine) {
         return engine.canPlay(type, conf);
       })[0];
-    };
-    var extPat = /\.(mp4|webm|m3u8|ogv|flv|f4v)$/i;
-    function last(url) {
-      var parts = url.split('.');
-      return extPat.test(url) && parts[parts.length - 1] || '';
-    };
-  };
+    }
+  }
 
   if (typeof module === 'object' && module.exports) module.exports = extension;
   else if (typeof window.flowplayer === 'function') extension(window.flowplayer);
