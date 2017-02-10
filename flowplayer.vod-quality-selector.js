@@ -16,7 +16,9 @@
     flowplayer(function(api) {
       var support = flowplayer.support;
       if (!support.inlineVideo) return;
-      var hlsjs = false;
+      var qPat = /(-[0-9]+p)?(\.(mp4|webm|m3u8|ogv|flv|f4v)?)$/i
+        , hostPat = /^(https?:)?\/\/[^/]+\//
+        , hlsjs = false;
       if (api.conf.hlsjs !== false) {
         flowplayer.engines.forEach(function (engine) {
           if (engine.engineName === 'hlsjs' && engine.canPlay('application/x-mpegurl', api.conf)) {
@@ -33,7 +35,7 @@
         if (isDrive) {
           var originalQualities = video.originalQualities = video.originalQualities || video.qualities || c.qualities
             , defaultQuality = video.defaultQuality || c.defaultQuality
-            , template = video.src.replace(/(-[0-9]+p)?\.(mp4|webm|m3u8|flv)$/, '-{q}.{ext}');
+            , template = video.src.replace(qPat, '-{q}.{ext}');
           if (typeof originalQualities === 'string') originalQualities = originalQualities.split(',');
           var qlities = ((typeof vodQualities.qualities === 'string' ? vodQualities.qualities.split(',') : vodQualities.qualities) || originalQualities || []).map(function(q) {
             if (q !== defaultQuality) return q;
@@ -51,7 +53,7 @@
         video.hlsQualities = false;
         var vodQualitySources = {}
           , vodSource = video.sources.filter(function(s) { return !/mpegurl/i.test(s.type) && isPlayable(s.type, c); })[0]
-          , vodExt = vodSource && last(vodSource.src.split('.'))
+          , vodExt = vodSource && last(vodSource.src)
           , hasHLSSource = video.sources.some(function(s) {
             if (!/mpegurl/i.test(s.type)) return false;
             vodQualitySources[-1] = {
@@ -62,20 +64,20 @@
           })
           , flashSource;
         video.sources.forEach(function(s) {
-          if (s.type.toLowerCase() === 'video/flash') flashSource = s.src;
+          if (s.type === 'video/flash') flashSource = s.src;
         });
         if (!support.video && !flashSource ||
           flashSource && (!c.rtmp && !video.rtmp || /^(https?:)?\/\//.test(flashSource))) return;
         var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : []
           , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || ''
-          , fSuffix = flashSource && /\.(mp4|flv|f4v)$/i.test(flashSource) && flashSource.slice(flashSource.length - 3) || '';
+          , fSuffix = flashSource && last(flashSource)
         qualities = qualities.concat(vodQualities.qualities.map(function(q, i) {
           if (typeof q === 'string') {
             vodQualitySources[i] = {
               type: vodSource && vodSource.type,
-              src: vodSource && vodSource.type && vodSource.type.toLowerCase() !== 'video/flash'
+              src: vodSource && vodSource.type !== 'video/flash'
                 ? vodQualities.template.replace('{q}', q).replace('{ext}', vodExt)
-                : vodQualities.template.replace(/^(https?:)?\/\/[^/]+\//, fPrefix).replace('{q}', q).replace('{ext}', fSuffix)
+                : vodQualities.template.replace(hostPat, fPrefix).replace('{q}', q).replace((fSuffix.length ? '' : '.') + '{ext}', fSuffix)
             };
             return {
               value: i, label: q
@@ -83,9 +85,9 @@
           }
           vodQualitySources[i] = {
             type: q.type || vodSource && vodSource.type,
-            src: q.type || vodSource && vodSource.type && vodSource.type.toLowerCase() !== 'video/flash'
+            src: q.type && q.type !== 'video/flash' || vodSource && vodSource.type !== 'video/flash'
               ? q.src.replace('{ext}', vodExt)
-              : q.src.replace(/^(https?:)?\/\/[^/]+\//, fPrefix).replace('{ext}', fSuffix)
+              : q.src.replace(hostPat, fPrefix).replace((fSuffix.length ? '' : '.') + '{ext}', fSuffix)
           };
           return {
             value: i, label: q.label
@@ -129,11 +131,14 @@
       return !!flowplayer.engines.filter(function(engine) {
         return engine.canPlay(type, conf);
       })[0];
-    }
+    };
+    var extPat = /\.(mp4|webm|m3u8|ogv|flv|f4v)$/i;
+    function last(url) {
+      var parts = url.split('.');
+      return extPat.test(url) && parts[parts.length - 1] || '';
+    };
   };
 
   if (typeof module === 'object' && module.exports) module.exports = extension;
   else if (typeof window.flowplayer === 'function') extension(window.flowplayer);
-
-  function last(parts) { return parts[parts.length - 1]; }
 })();
