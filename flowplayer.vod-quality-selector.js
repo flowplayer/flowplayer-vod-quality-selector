@@ -66,7 +66,6 @@
           })
           , flashType = 'video/flash'
           , flashSource;
-        console.info(vodSource.src, extPat.exec(vodSource.src));
         video.sources.forEach(function(s) {
           if (s.type === flashType) flashSource = s.src;
         });
