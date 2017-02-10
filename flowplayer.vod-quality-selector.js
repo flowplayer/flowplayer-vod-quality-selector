@@ -64,10 +64,11 @@
             };
             return true;
           })
+          , flashType = 'video/flash'
           , flashSource;
         console.info(vodSource.src, extPat.exec(vodSource.src));
         video.sources.forEach(function(s) {
-          if (s.type === 'video/flash') flashSource = s.src;
+          if (s.type === flashType) flashSource = s.src;
         });
         if (!support.video && !flashSource ||
           flashSource && (!c.rtmp && !video.rtmp || /^(https?:)?\/\//.test(flashSource))) return;
@@ -77,7 +78,7 @@
           if (typeof q === 'string') {
             vodQualitySources[i] = {
               type: vodSource && vodSource.type,
-              src: vodSource && vodSource.type !== 'video/flash'
+              src: vodSource && vodSource.type !== flashType
                 ? vodQualities.template.replace('{q}', q).replace(extTemplatePat, vodExt)
                 : vodQualities.template.replace(hostPat, fPrefix).replace('{q}', q).replace(extTemplatePat, vodExt)
             };
@@ -87,7 +88,7 @@
           }
           vodQualitySources[i] = {
             type: q.type || vodSource && vodSource.type,
-            src: q.type && q.type !== 'video/flash' || vodSource && vodSource.type !== 'video/flash'
+            src: q.type && q.type !== flashType || vodSource && vodSource.type !== flashType
               ? q.src.replace(extTemplatePat, vodExt)
               : q.src.replace(hostPat, fPrefix).replace(extTemplatePat, vodExt)
           };
