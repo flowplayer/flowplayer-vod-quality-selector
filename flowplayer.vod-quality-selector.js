@@ -125,12 +125,12 @@
         if (!selectedQuality) return;
         var originalSources = api.video.originalSources || api.video.sources
           , video = extend({}, api.video, {
-            originalSources: originalSources,
-            sources: [{ type: selectedQuality.type, src: selectedQuality.src }].concat(originalSources),
-            src: null,
-            type: null
-          });
-        var time = video.time;
+              originalSources: originalSources,
+              sources: [{ type: selectedQuality.type, src: selectedQuality.src }].concat(originalSources),
+              src: null,
+              type: null
+            })
+          , time = video.time;
         if (hlsjs && video.hlsjs !== false && time && q < 0) {
           video.hlsjs = extend(video.hlsjs || {}, {startPosition: time});
         }
