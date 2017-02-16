@@ -16,11 +16,13 @@
     flowplayer(function(api) {
       var support = flowplayer.support;
       if (!support.inlineVideo) return;
-      var qPat = /(-[0-9]+p)?(\.(mp4|webm|m3u8|ogv|flv|f4v)?)$/i
+      var extend = flowplayer.extend
+        , qPat = /(-[0-9]+p)?(\.(mp4|webm|m3u8|ogv|flv|f4v)?)$/i
         , extPat = /(\.(mp4|webm|m3u8|ogv|flv|f4v))?$/i
         , extTemplatePat = /\.?{ext}/
         , hostPat = /^(https?:)?\/\/[^/]+\//
-        , hlsjs = false;
+        , hlsjs = false
+        , lastQuality;
       if (api.conf.hlsjs !== false) {
         flowplayer.engines.forEach(function (engine) {
           if (engine.engineName === 'hlsjs' && engine.canPlay('application/x-mpegurl', api.conf)) {
@@ -72,7 +74,9 @@
         if (!support.video && !flashSource ||
           flashSource && (!c.rtmp && !video.rtmp || /^(https?:)?\/\//.test(flashSource))) return;
         var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : []
-          , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || '';
+          , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || ''
+          , reload
+          , loadedQuality
         qualities = qualities.concat(vodQualities.qualities.map(function(q, i) {
           if (typeof q === 'string') {
             vodQualitySources[i] = {
@@ -96,16 +100,30 @@
           };
         }));
         video.qualities = qualities;
-        if (/mpegurl/i.test(video.type)) video.quality = -1;
-        else video.quality = Object.keys(vodQualitySources).filter(function(k) { return video.src.indexOf(vodQualitySources[k].src) > -1; })[0];
+        reload = video.vodQualitySources === undefined && lastQuality !== undefined && Object.keys(qualities).indexOf(lastQuality + "") > -1;
         video.vodQualitySources = vodQualitySources;
+        if (/mpegurl/i.test(video.type)) loadedQuality = -1;
+        else loadedQuality = Object.keys(vodQualitySources).filter(function(k) { return video.src.indexOf(vodQualitySources[k].src) > -1; })[0];
+        if (reload && lastQuality !== loadedQuality) {
+            _ev.preventDefault();
+            api.loading = false;
+            var originalSources = video.sources;
+            extend(video, {
+              originalSources: originalSources,
+              sources: [{ type: vodQualitySources[lastQuality].type, src: vodQualitySources[lastQuality].src }].concat(originalSources),
+              src: null,
+              type: null
+            });
+            api.load(video);
+        } else {
+            video.quality = loadedQuality;
+        }
       })
 
       .on('quality', function(_ev, api, q) {
         var selectedQuality = api.video.vodQualitySources && api.video.vodQualitySources[q];
         if (!selectedQuality) return;
         var originalSources = api.video.originalSources || api.video.sources
-          , extend = flowplayer.extend
           , video = extend({}, api.video, {
             originalSources: originalSources,
             sources: [{ type: selectedQuality.type, src: selectedQuality.src }].concat(originalSources),
@@ -125,6 +143,7 @@
           } else if (video.hlsjs) {
             video.hlsjs.startPosition = 0;
           }
+          lastQuality = q;
         });
       });
     });
