@@ -21,6 +21,7 @@
         , extPat = /(\.(mp4|webm|m3u8|ogv|flv|f4v))?$/i
         , extTemplatePat = /\.?{ext}/
         , hostPat = /^(https?:)?\/\/[^/]+\//
+        , flashType = 'video/flash'
         , hlsjs = false
         , lastQuality;
       if (api.conf.hlsjs !== false) {
@@ -66,7 +67,6 @@
             };
             return true;
           })
-          , flashType = 'video/flash'
           , flashSource;
         video.sources.forEach(function(s) {
           if (s.type === flashType) flashSource = s.src;
@@ -138,6 +138,10 @@
           api.finished = false;
           if (time && !(video.hlsjs && video.hlsjs.startPosition)) {
             api.seek(time, function () {
+              if (api.video.type === flashType) {
+                api.playing = false;
+                api.paused = true;
+              }
               api.resume();
             });
           } else if (video.hlsjs) {
