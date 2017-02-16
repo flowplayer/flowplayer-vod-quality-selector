@@ -99,9 +99,9 @@
         if (/mpegurl/i.test(video.type)) video.quality = -1;
         else video.quality = Object.keys(vodQualitySources).filter(function(k) { return video.src.indexOf(vodQualitySources[k].src) > -1; })[0];
         video.vodQualitySources = vodQualitySources;
-      });
+      })
 
-      api.on('quality', function(_ev, api, q) {
+      .on('quality', function(_ev, api, q) {
         var selectedQuality = api.video.vodQualitySources && api.video.vodQualitySources[q];
         if (!selectedQuality) return;
         var originalSources = api.video.originalSources || api.video.sources
