@@ -76,7 +76,7 @@
         var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : []
           , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || ''
           , reload
-          , loadedQuality
+          , loadedQuality;
         qualities = qualities.concat(vodQualities.qualities.map(function(q, i) {
           if (typeof q === 'string') {
             vodQualitySources[i] = {
@@ -105,18 +105,18 @@
         if (/mpegurl/i.test(video.type)) loadedQuality = -1;
         else loadedQuality = Object.keys(vodQualitySources).filter(function(k) { return video.src.indexOf(vodQualitySources[k].src) > -1; })[0];
         if (reload && lastQuality !== loadedQuality) {
-            _ev.preventDefault();
-            api.loading = false;
-            var originalSources = video.sources;
-            extend(video, {
-              originalSources: originalSources,
-              sources: [{ type: vodQualitySources[lastQuality].type, src: vodQualitySources[lastQuality].src }].concat(originalSources),
-              src: null,
-              type: null
-            });
-            api.load(video);
+          _ev.preventDefault();
+          api.loading = false;
+          var originalSources = video.sources;
+          extend(video, {
+            originalSources: originalSources,
+            sources: [{ type: vodQualitySources[lastQuality].type, src: vodQualitySources[lastQuality].src }].concat(originalSources),
+            src: null,
+            type: null
+          });
+          api.load(video);
         } else {
-            video.quality = loadedQuality;
+          video.quality = loadedQuality;
         }
       })
 
