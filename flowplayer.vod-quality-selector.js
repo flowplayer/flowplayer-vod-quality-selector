@@ -40,13 +40,13 @@
         if (isDrive) {
           var originalQualities = video.originalQualities = video.originalQualities || video.qualities || c.qualities
             , defaultQuality = video.defaultQuality || c.defaultQuality
-            , template = video.src.replace(qPat, '-{q}.{ext}');
+            , template = video.src.replace(qPat, '_{q}.{ext}');
           if (typeof originalQualities === 'string') originalQualities = originalQualities.split(',');
           var qlities = ((typeof vodQualities.qualities === 'string' ? vodQualities.qualities.split(',') : vodQualities.qualities) || originalQualities || []).map(function(q) {
             if (q !== defaultQuality) return q;
             return {
               label: q,
-              src: template.replace(/-{q}/, '')
+              src: template.replace(/_{q}/, '')
             };
           });
           vodQualities = {
