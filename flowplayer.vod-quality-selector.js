@@ -42,12 +42,11 @@
             , defaultQuality = video.defaultQuality || c.defaultQuality
             , template = video.src.replace(qPat, '-{q}.{ext}');
           if (typeof originalQualities === 'string') originalQualities = originalQualities.split(',');
-          var qlities = ((typeof vodQualities.qualities === 'string' ? vodQualities.qualities.split(',') : vodQualities.qualities) || originalQualities || []).map(function(q) {
-            if (q !== defaultQuality) return q;
-            return {
-              label: q,
-              src: template.replace(/-{q}/, '')
-            };
+          //var qlities = ((typeof vodQualities.qualities === 'string' ? vodQualities.qualities.split(',') : vodQualities.qualities) || originalQualities || []).map(function(q) {
+          var qs = (typeof vodQualities.qualities === 'string' ? vodQualities.qualities.split(',') : vodQualities.qualities) || originalQualities || [];
+          qlities = [];
+          qs.forEach(function(q) {
+            qlities.push(q !== defaultQuality ? q : {label: q, src: template.replace(/-{q}/, '')});
           });
           vodQualities = {
             template: template,
@@ -76,8 +75,10 @@
         var qualities = hasHLSSource ? [{ value: -1, label: 'Auto' }] : []
           , fPrefix = flashSource && /^(mp4|flv):/.test(flashSource) && flashSource.slice(0, 4) || ''
           , reload
-          , loadedQuality;
-        qualities = qualities.concat(vodQualities.qualities.map(function(q, i) {
+          , loadedQuality
+          , vodQlties = []
+          , i = 0;
+        vodQualities.qualities.forEach(function (q) {
           if (typeof q === 'string') {
             vodQualitySources[i] = {
               type: vodSource && vodSource.type,
@@ -85,25 +86,30 @@
                 ? vodQualities.template.replace('{q}', q).replace(extTemplatePat, vodExt)
                 : vodQualities.template.replace(hostPat, fPrefix).replace('{q}', q).replace(extTemplatePat, vodExt)
             };
-            return {
-              value: i, label: q
+            vodQlties.push({value: i, label: q});
+          } else {
+            vodQualitySources[i] = {
+              type: q.type || vodSource && vodSource.type,
+              src: q.type && q.type !== flashType || vodSource && vodSource.type !== flashType
+                ? q.src.replace(extTemplatePat, vodExt)
+                : q.src.replace(hostPat, fPrefix).replace(extTemplatePat, vodExt)
             };
+            vodQlties.push({value: i, label: q.label});
           }
-          vodQualitySources[i] = {
-            type: q.type || vodSource && vodSource.type,
-            src: q.type && q.type !== flashType || vodSource && vodSource.type !== flashType
-              ? q.src.replace(extTemplatePat, vodExt)
-              : q.src.replace(hostPat, fPrefix).replace(extTemplatePat, vodExt)
-          };
-          return {
-            value: i, label: q.label
-          };
-        }));
+          i++;
+        });
+        qualities = qualities.concat(vodQlties);
         video.qualities = qualities;
         reload = video.vodQualitySources === undefined && lastQuality !== undefined && Object.keys(qualities).indexOf(lastQuality + "") > -1;
         video.vodQualitySources = vodQualitySources;
         if (/mpegurl/i.test(video.type)) loadedQuality = -1;
-        else loadedQuality = Object.keys(vodQualitySources).filter(function(k) { return video.src.indexOf(vodQualitySources[k].src) > -1; })[0];
+        else {
+          Object.keys(vodQualitySources).forEach(function(k) {
+            if (!loadedQuality && video.src.indexOf(vodQualitySources[k].src) > -1) {
+              loadedQuality = k;
+            }
+          });
+        }
         if (reload && lastQuality !== loadedQuality) {
           _ev.preventDefault();
           api.loading = false;
