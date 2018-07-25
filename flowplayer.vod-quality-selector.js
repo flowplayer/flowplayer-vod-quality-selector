@@ -17,8 +17,8 @@
       var support = flowplayer.support;
       if (!support.inlineVideo) return;
       var extend = flowplayer.extend
-        , qPat = /(-[0-9]+p)?(\.(mp4|webm|m3u8|ogv|flv|f4v)?)$/i
-        , extPat = /(\.(mp4|webm|m3u8|ogv|flv|f4v))?$/i
+        , qPat = /(-[0-9]+p)?(\.(mp4|m4v|mov|webm|m3u8|ogv|ogg|flv|f4v)?)$/i
+        , extPat = /(\.(mp4|m4v|mov|webm|m3u8|ogv|ogg|flv|f4v))?$/i
         , extTemplatePat = /\.?{ext}/
         , hostPat = /^(https?:)?\/\/[^/]+\//
         , flashType = 'video/flash'
